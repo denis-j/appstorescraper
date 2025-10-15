@@ -9,32 +9,53 @@ const gplayModule = require('google-play-scraper') as {
 } & typeof import('google-play-scraper');
 const gplay = (gplayModule.default ?? gplayModule) as typeof import('google-play-scraper');
 
-const mappingHelpersModule = require('google-play-scraper/lib/utils/mappingHelpers.js') as {
-  default?: Record<string, unknown>;
-  [key: string]: unknown;
-};
-
-type ExtractCategoriesFn = (searchArray: unknown, categories?: unknown[]) => unknown[];
-
-const mappingHelpers = (mappingHelpersModule.default ?? mappingHelpersModule) as {
-  extractCategories?: ExtractCategoriesFn;
-};
-
-if (typeof mappingHelpers.extractCategories === 'function') {
-  const originalExtractCategories: ExtractCategoriesFn =
-    mappingHelpers.extractCategories.bind(mappingHelpers);
-  mappingHelpers.extractCategories = (searchArray: unknown, categories: unknown[] = []) => {
-    if (!Array.isArray(searchArray) || searchArray.length === 0) {
-      return categories;
-    }
-    return originalExtractCategories(searchArray, categories) as unknown[];
-  };
-}
-
 const COUNTRY = 'de';
 const LANG = 'de';
 
+type ExtractCategoriesFn = (searchArray: unknown, categories?: unknown[]) => unknown[];
+
+let mappingHelpersPatched = false;
+
+const ensureMappingHelpersPatched = async (): Promise<void> => {
+  if (mappingHelpersPatched) return;
+  mappingHelpersPatched = true;
+
+  try {
+    const moduleUrl = new URL(
+      '../node_modules/google-play-scraper/lib/utils/mappingHelpers.js',
+      import.meta.url
+    );
+    const mappingHelpersModule = (await import(moduleUrl.href)) as {
+      default?: { extractCategories?: ExtractCategoriesFn };
+      extractCategories?: ExtractCategoriesFn;
+    };
+    const mappingHelpers =
+      (mappingHelpersModule.default ?? mappingHelpersModule) as {
+        extractCategories?: ExtractCategoriesFn;
+      };
+
+    if (typeof mappingHelpers.extractCategories === 'function') {
+      const originalExtractCategories: ExtractCategoriesFn =
+        mappingHelpers.extractCategories.bind(mappingHelpers);
+      mappingHelpers.extractCategories = (searchArray: unknown, categories: unknown[] = []) => {
+        if (!Array.isArray(searchArray) || searchArray.length === 0) {
+          return categories;
+        }
+        return originalExtractCategories(searchArray, categories) as unknown[];
+      };
+    }
+  } catch (error) {
+    console.warn(
+      `Android: Konnte google-play-scraper Kategorien-Patch nicht laden: ${
+        (error as Error).message
+      }`
+    );
+  }
+};
+
 export const fetchAndroidLeads = async (config: AppConfig): Promise<Lead[]> => {
+  await ensureMappingHelpersPatched();
+
   const leads: Lead[] = [];
 
   for (const keyword of config.keywords) {
