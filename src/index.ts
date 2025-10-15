@@ -8,6 +8,7 @@ import { ensureDir, isFresh, dedupeBy, Lead } from './util.js';
 import { fetchIosLeads } from './ios.js';
 import { fetchAndroidLeads } from './android.js';
 import { syncLeadsToSheet } from './sheets.js';
+import { sendLeadsEmail } from './email.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -80,6 +81,8 @@ const run = async (): Promise<void> => {
   if (config.googleSheetsEnabled && deduped.length > 0) {
     await syncLeadsToSheet(deduped, config);
   }
+
+  await sendLeadsEmail(deduped, filePath, config);
 
   console.log('Fertig.');
 };

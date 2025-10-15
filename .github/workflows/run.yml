@@ -2,7 +2,7 @@ name: Run App Leads Scout
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: '0 8 * * 1-5'
   workflow_dispatch:
 
 jobs:
@@ -42,6 +42,11 @@ jobs:
           GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
           GOOGLE_SHEETS_TAB_NAME: ${{ secrets.GOOGLE_SHEETS_TAB_NAME }}
           GOOGLE_APPLICATION_CREDENTIALS: gcp-service-account.json
+          EMAIL_ENABLED: ${{ secrets.EMAIL_ENABLED }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+          EMAIL_SUBJECT: ${{ secrets.EMAIL_SUBJECT }}
 
       - name: Upload CSV Artefakt
         uses: actions/upload-artifact@v4

@@ -2,6 +2,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+export interface EmailConfig {
+  enabled: boolean;
+  apiKey: string;
+  from: string;
+  to: string[];
+  subject: string;
+}
+
 export interface AppConfig {
   keywords: string[];
   minRating: number;
@@ -14,6 +22,7 @@ export interface AppConfig {
     tabName: string;
     credentialsPath: string;
   };
+  email?: EmailConfig;
 }
 
 const parseNumber = (value: string | undefined, fallback: number): number => {
@@ -25,6 +34,14 @@ const parseNumber = (value: string | undefined, fallback: number): number => {
 const parseBool = (value: string | undefined): boolean => {
   if (!value) return false;
   return value.toLowerCase() === 'true' || value === '1';
+};
+
+const parseList = (value: string | undefined): string[] => {
+  if (!value) return [];
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 };
 
 const DEFAULT_KEYWORDS = ['shop', 'fitness', 'community', 'booking', 'delivery'];
@@ -48,6 +65,19 @@ const googleSheets = googleSheetsEnabled
     }
   : undefined;
 
+const emailEnabled = parseBool(process.env.EMAIL_ENABLED);
+
+const email = emailEnabled
+  ? {
+      enabled: true,
+      apiKey: process.env.RESEND_API_KEY?.trim() ?? '',
+      from: process.env.EMAIL_FROM?.trim() ?? '',
+      to: parseList(process.env.EMAIL_TO),
+      subject:
+        process.env.EMAIL_SUBJECT?.trim() || 'App Leads Scout Ergebnisse'
+    }
+  : undefined;
+
 export const config: AppConfig = {
   keywords,
   minRating,
@@ -55,7 +85,8 @@ export const config: AppConfig = {
   maxUpdateAgeDays,
   outputDir,
   googleSheetsEnabled,
-  googleSheets
+  googleSheets,
+  email
 };
 
 export default config;
