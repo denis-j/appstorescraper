@@ -27,6 +27,20 @@ Setze folgende Variablen in deiner `.env` (bzw. in GitHub-Secrets), um den CSV-E
 
 > Hinweis: Domain bzw. Absender müssen in Resend verifiziert sein, bevor Mails erfolgreich zugestellt werden.
 
+## Google-Sheets-Export
+
+Der Sheets-Sync ist optional. Wenn du ihn aktivierst (`GOOGLE_SHEETS_ENABLED=true`),
+benötigt das Skript einen Google-Service-Account mit Zugriff auf die gewünschte
+Tabelle:
+
+1. Projekt in der [Google Cloud Console](https://console.cloud.google.com/) auswählen oder neu anlegen.
+2. Die Google Sheets API aktivieren.
+3. Einen Service-Account erstellen und den JSON-Schlüssel herunterladen.
+4. Die Ziel-Tabelle mit der Service-Account-E-Mail teilen (mindestens Bearbeitungsrecht).
+5. Den Pfad zum JSON-Schlüssel in `GOOGLE_APPLICATION_CREDENTIALS` eintragen (z. B. `./gcp-service-account.json`).
+
+Ohne aktivierte Sheets-Option wird diese Datei nicht benötigt.
+
 ## Automatischer Daily-Run (Mo–Fr, 10:00 Uhr Berlin)
 
 Eine GitHub Action (`.github/workflows/run.yml`) führt das Skript werktags um 08:00 UTC aus. Damit das funktioniert, musst du im Repository folgende Secrets hinterlegen:
