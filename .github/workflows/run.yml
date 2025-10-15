@@ -8,6 +8,7 @@ on:
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,20 +34,20 @@ jobs:
       - name: Run scraper
         run: npm run start
         env:
-          KEYWORDS: ${{ secrets.KEYWORDS }}
-          MIN_RATING: ${{ secrets.MIN_RATING }}
-          MIN_REVIEWS: ${{ secrets.MIN_REVIEWS }}
-          MAX_UPDATE_AGE_DAYS: ${{ secrets.MAX_UPDATE_AGE_DAYS }}
+          KEYWORDS: ${{ vars.KEYWORDS }}
+          MIN_RATING: ${{ vars.MIN_RATING }}
+          MIN_REVIEWS: ${{ vars.MIN_REVIEWS }}
+          MAX_UPDATE_AGE_DAYS: ${{ vars.MAX_UPDATE_AGE_DAYS }}
           OUTPUT_DIR: ./out
-          GOOGLE_SHEETS_ENABLED: ${{ secrets.GOOGLE_SHEETS_ENABLED }}
-          GOOGLE_SHEETS_SPREADSHEET_ID: ${{ secrets.GOOGLE_SHEETS_SPREADSHEET_ID }}
-          GOOGLE_SHEETS_TAB_NAME: ${{ secrets.GOOGLE_SHEETS_TAB_NAME }}
+          GOOGLE_SHEETS_ENABLED: ${{ vars.GOOGLE_SHEETS_ENABLED }}
+          GOOGLE_SHEETS_SPREADSHEET_ID: ${{ vars.GOOGLE_SHEETS_SPREADSHEET_ID }}
+          GOOGLE_SHEETS_TAB_NAME: ${{ vars.GOOGLE_SHEETS_TAB_NAME }}
           GOOGLE_APPLICATION_CREDENTIALS: gcp-service-account.json
-          EMAIL_ENABLED: ${{ secrets.EMAIL_ENABLED }}
+          EMAIL_ENABLED: ${{ vars.EMAIL_ENABLED }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
-          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
-          EMAIL_TO: ${{ secrets.EMAIL_TO }}
-          EMAIL_SUBJECT: ${{ secrets.EMAIL_SUBJECT }}
+          EMAIL_FROM: ${{ vars.EMAIL_FROM }}
+          EMAIL_TO: ${{ vars.EMAIL_TO }}
+          EMAIL_SUBJECT: ${{ vars.EMAIL_SUBJECT }}
 
       - name: Upload CSV Artefakt
         uses: actions/upload-artifact@v4
